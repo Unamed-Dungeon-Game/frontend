@@ -41,6 +41,7 @@ const battle = {
 };
 
 const Action = {
+  type: "normal_attack"
 
 }
 ```
