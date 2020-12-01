@@ -1,0 +1,126 @@
+html,
+body {
+  height: 100%;
+  font-size: 65.5%;
+}
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  box-sizing: border-box;
+  max-width: 100%;
+  font-size: 1.6rem;
+  text-decoration: none;
+  color: black;
+}
+.Grid {
+  width: 450px;
+  height: 450px;
+  background: grey;
+  margin: 10vh auto;
+  display: flex;
+  flex-wrap: wrap;
+}
+.Block {
+  width: 50px;
+  height: 50px;
+  background-color: green;
+  border: 1px solid black;
+}
+.Block p {
+  font-size: 10px;
+}
+.Block img {
+  width: 40px;
+  height: 40px;
+}
+.Barrier {
+  background-color: black;
+}
+.Menu {
+  margin: 0 auto;
+  width: 100px;
+  background-color: black;
+}
