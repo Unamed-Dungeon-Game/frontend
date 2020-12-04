@@ -1,4 +1,13 @@
-import { INIT_GRID, INIT_DISPLAY, EDIT_GRID_SIZE, EDIT_DISPLAY_SIZE } from '../actions/index'
+import {
+    INIT_GRID,
+    INIT_DISPLAY,
+    INIT_POSITION,
+    UPDATE_GRID_SIZE,
+    UPDATE_DISPLAY_SIZE,
+    UPDATE_DISPLAY,
+    UPDATE_POSITION,
+    UPDATE_GRID
+} from '../actions/index'
 
 const createBlock = (id = -1, position = null, items = null, entity = null, background = null) => {
     return {
@@ -64,37 +73,168 @@ const initializeDisplay = (state) => {
     return newDisplay
 }
 
+const updateDisplay = (state, direction) => {
+    const [x, y] = state.position
+
+    const normalPositions = {
+        "n": {
+            startHeight: y + Math.ceil(state.displaySize / 2),
+            endHeight: y - Math.floor(state.displaySize / 2),
+            startWidth: x - Math.floor(state.displaySize / 2),
+            endWidth: x + Math.ceil(state.displaySize / 2)
+        },
+        "s": {
+            startHeight: y + (Math.floor(state.displaySize / 2) - 1),
+            endHeight: y - (Math.ceil(state.displaySize / 2) + 1),
+            startWidth: x - Math.floor(state.displaySize / 2),
+            endWidth: x + Math.ceil(state.displaySize / 2)
+        },
+        "e": {
+            startHeight: y + Math.floor(state.displaySize / 2),
+            endHeight: y - Math.ceil(state.displaySize / 2),
+            startWidth: x - (Math.floor(state.displaySize / 2) - 1),
+            endWidth: x + (Math.ceil(state.displaySize / 2) + 1)
+        },
+        "w": {
+            startHeight: y + Math.floor(state.displaySize / 2),
+            endHeight: y - Math.ceil(state.displaySize / 2),
+            startWidth: x - Math.ceil(state.displaySize / 2),
+            endWidth: x + Math.floor(state.displaySize / 2)
+        },
+    }
+
+    let updatedDisplay = []
+    let position = normalPositions[direction]
+
+    for (let i = position.startHeight; i > position.endHeight; i--) {
+        let row
+        try {
+            row = state.grid[i].slice(position.startWidth, position.endWidth)
+
+            if (position.startWidth < 0) {
+                row = state.grid[i].slice(0, position.endWidth)
+                for (let j = position.startWidth; j < 0; j++) {
+                    row.unshift(createBlock())
+                }
+                if (position.endWidth >= state.width) {
+                    for (let x = position.endWidth; x > state.width; x--) {
+                        row.push(createBlock())
+                    }
+                }
+            } else if (position.endWidth >= state.width) {
+                row = state.grid[i].slice(position.startWidth, state.width)
+                for (let j = position.endWidth; j > state.width; j--) {
+                    row.push(createBlock())
+                }
+            }
+        } catch (err) {
+            row = new Array(state.displaySize).fill(createBlock())
+        }
+
+        updatedDisplay = updatedDisplay.concat(row)
+    }
+
+    return updatedDisplay
+}
+
+const updatePosition = (state, direction) => {
+    const [x, y] = state.position
+
+    const positionByDirection = () => {
+        const updatedPositions = {
+            "n": [x, y + 1],
+            "s": [x, y - 1],
+            "e": [x + 1, y],
+            "w": [x - 1, y]
+        }
+
+        if (direction === "n" && y === state.height) {
+            return state.position
+        } else if (direction === "s" && y === 0) {
+            return state.position
+        } else if (direction === "w" && x === 0) {
+            return state.position
+        } else if (direction === "e" && x === state.width) {
+            return state.position
+        } else {
+            return updatedPositions[direction]
+        }
+    }
+
+    return positionByDirection()
+}
+
+const updateGrid = (state) => {
+    const grid = { ...state.grid }
+    grid[state.position[1]][state.position[0]].entity = { name: "player" }
+    return grid
+}
+
 const initialState = {
     width: 100,
     height: 100,
-    initialLocation: [50, 50],
+    position: [50, 50],
     grid: {},
     display: [],
-    size: 9
+    size: 9,
+    error: null
 }
 
 const reducer = (state = initialState, action) => {
+    const grid = { ...state.grid }
     switch (action.type) {
         case INIT_GRID:
             return {
                 ...state,
-                grid: createGrid(state.width, state.length)
+                grid: createGrid(state.width, state.height)
+            }
+        case INIT_POSITION:
+            grid[action.payload[1]][action.payload[0]].entity = { name: "player" }
+            return {
+                ...state,
+                grid: grid,
+                positon: action.payload
             }
         case INIT_DISPLAY:
             return {
                 ...state,
                 display: initializeDisplay(state)
             }
-        case EDIT_GRID_SIZE:
+        case UPDATE_GRID_SIZE:
             return {
                 ...state,
                 width: action.payload[0],
                 height: action.payload[1]
             }
-        case EDIT_DISPLAY_SIZE:
+        case UPDATE_DISPLAY_SIZE:
+            if (action.payload % 2 === 0) {
+                return {
+                    ...state,
+                    error: "Size must be odd"
+                }
+            } else {
+                return {
+                    ...state,
+                    size: action.payload
+                }
+            }
+        case UPDATE_POSITION:
             return {
                 ...state,
-                size: action.payload
+                postion: updatePosition(state, action.payload)
+            }
+        case UPDATE_GRID:
+            return {
+                ...state,
+                grid: updateGrid(state)
+            }
+        case UPDATE_DISPLAY:
+            const [x, y] = state.position
+            grid[y][x].entity = null
+            return {
+                ...state,
+                grid: grid,
+                display: updateDisplay(state, action.payload)
             }
         default:
             return state

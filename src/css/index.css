@@ -103,20 +103,24 @@ video {
   display: flex;
   flex-wrap: wrap;
 }
-.Block {
+.block {
   width: 50px;
   height: 50px;
   background-color: green;
   border: 1px solid black;
 }
-.Block p {
+.block p {
   font-size: 10px;
 }
-.Block img {
+.block img {
   width: 40px;
   height: 40px;
 }
-.Barrier {
+.grass {
+  background-image: url("../images/grass.png");
+  background-size: contain;
+}
+.barrier {
   background-color: black;
 }
 .Menu {

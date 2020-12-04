@@ -3,7 +3,7 @@ import Block from './Block'
 import { v4 } from 'uuid'
 
 const Grid = () => {
-    const createBlock = (id = -1, position = null, items = null, entity = null, background = null) => {
+    const createBlock = (id = -1, position = null, items = null, entity = null, background = "grass") => {
         return {
             id: id,
             position: position,
@@ -32,8 +32,8 @@ const Grid = () => {
         return [newGrid, initialLocation]
     }
 
-    const width = 5
-    const height = 5
+    const width = 15
+    const height = 15
     const displaySize = 9
     // const [grid, initialLocation] = createGrid(width, height)
 
@@ -66,6 +66,11 @@ const Grid = () => {
                     for (let x = startWidth; x < 0; x++) {
                         row.unshift(createBlock())
                     }
+                    if (endWidth >= width) {
+                        for (let x = endWidth; x > width; x--) {
+                            row.push(createBlock())
+                        }
+                    }
                 } else if (endWidth >= width) {
                     row = grid[i].slice(startWidth, width)
                     for (let x = endWidth; x > width; x--) {
@@ -84,9 +89,8 @@ const Grid = () => {
         console.log(display)
     }
 
-
-    // Finds starting coordinates for display when player position changes
-    const getDisplayPosition = (direction) => {
+    // Updates grid based on player movement
+    const updateDisplay = (direction) => {
         const [x, y] = player.position
 
         const normalPositions = {
@@ -116,40 +120,6 @@ const Grid = () => {
             },
         }
 
-        return normalPositions[direction]
-    }
-
-    // Updates grid based on player movement
-    const updateDisplay = (direction) => {
-        const [x, y] = player.position
-
-        const normalPositions = {
-            "n": {
-                startHeight: y + 5,
-                endHeight: y - 4,
-                startWidth: x - 4,
-                endWidth: x + 5
-            },
-            "s": {
-                startHeight: y + 3,
-                endHeight: y - 6,
-                startWidth: x - 4,
-                endWidth: x + 5
-            },
-            "e": {
-                startHeight: y + 4,
-                endHeight: y - 5,
-                startWidth: x - 3,
-                endWidth: x + 6
-            },
-            "w": {
-                startHeight: y + 4,
-                endHeight: y - 5,
-                startWidth: x - 5,
-                endWidth: x + 4
-            },
-        }
-
         let updatedDisplay = []
         let position = normalPositions[direction]
 
@@ -164,6 +134,11 @@ const Grid = () => {
                     row = grid[i].slice(0, position.endWidth)
                     for (let j = position.startWidth; j < 0; j++) {
                         row.unshift(createBlock())
+                    }
+                    if (position.endWidth >= width) {
+                        for (let x = position.endWidth; x > width; x--) {
+                            row.push(createBlock())
+                        }
                     }
                 } else if (position.endWidth >= width) {
                     row = grid[i].slice(position.startWidth, width)
@@ -190,21 +165,35 @@ const Grid = () => {
     const changePlayerPosition = (direction) => {
         const [x, y] = player.position
 
-        const updatedPositions = {
-            "n": [x, y + 1],
-            "s": [x, y - 1],
-            "e": [x + 1, y],
-            "w": [x - 1, y]
+        const updatePosition = () => {
+            const updatedPositions = {
+                "n": [x, y + 1],
+                "s": [x, y - 1],
+                "e": [x + 1, y],
+                "w": [x - 1, y]
+            }
+
+            if (direction === "n" && y === height) {
+                return player.position
+            } else if (direction === "s" && y === 0) {
+                return player.position
+            } else if (direction === "w" && x === 0) {
+                return player.position
+            } else if (direction === "e" && x === width) {
+                return player.position
+            } else {
+                return updatedPositions[direction]
+            }
         }
 
-        const newPosition = updatedPositions[direction]
+        const newPosition = updatePosition()
 
         grid[y][x].entity = null
         grid[newPosition[1]][newPosition[0]].entity = player
 
         setPlayer({
             ...player,
-            position: updatedPositions[direction]
+            position: updatePosition()
         })
 
         console.log(player.position)
