@@ -1,10 +1,11 @@
 import React from 'react'
-import Grid from './components/Grid/Grid'
+// import Grid from './components/Grid/Grid'
+import GridV2 from './components/Grid/GridV2'
 
 function App() {
     return (
         <div className="App">
-            <Grid />
+            <GridV2 />
         </div>
     );
 }
